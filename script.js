@@ -1,40 +1,38 @@
 //your code here
-let draggedItem = null;
+const images = document.querySelectorAll('.image');
+let activeImage = null;
+let initialX = 0;
+let initialY = 0;
+let xOffset = 0;
+let yOffset = 0;
+
+images.forEach(image => {
+  image.addEventListener('mousedown', dragStart);
+  image.addEventListener('mouseup', dragEnd);
+  image.addEventListener('mousemove', drag);
+});
 
 function dragStart(event) {
-    draggedItem = event.target;
-    event.dataTransfer.setData('text/plain', event.target.id);
+  activeImage = this;
+  initialX = event.clientX - xOffset;
+  initialY = event.clientY - yOffset;
 }
 
-function dragEnter(event) {
+function dragEnd(event) {
+  activeImage = null;
+  initialX = xOffset;
+  initialY = yOffset;
+}
+
+function drag(event) {
+  if (activeImage) {
     event.preventDefault();
+    xOffset = event.clientX - initialX;
+    yOffset = event.clientY - initialY;
+    setTranslate(xOffset, yOffset, activeImage);
+  }
 }
 
-function dragOver(event) {
-    event.preventDefault();
+function setTranslate(xPos, yPos, el) {
+  el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
 }
-
-function drop(event) {
-    const droppedItem = event.target;
-    if (droppedItem.tagName === 'div') {
-        event.preventDefault();
-        const draggedItemId = draggedItem.id;
-        const droppedItemId = droppedItem.id;
-        
-        // Swap background images
-        const tempBackground = draggedItem.style.backgroundImage;
-        draggedItem.style.backgroundImage = droppedItem.style.backgroundImage;
-        droppedItem.style.backgroundImage = tempBackground;
-        
-        // Swap IDs to maintain correct drag behavior
-        draggedItem.id = droppedItemId;
-        droppedItem.id = draggedItemId;
-    }
-}
-
-const divs = document.querySelectorAll('[draggable="true"]');
-divs.forEach(div => {
-    div.addEventListener('dragenter', dragEnter);
-    div.addEventListener('dragover', dragOver);
-    div.addEventListener('drop', drop);
-});
